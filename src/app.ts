@@ -2,6 +2,7 @@ import express from "express";
 import "./database";
 import { router } from "./routes";
 import dgram from "dgram";
+import net from "net";
 
 const app = express();
 
@@ -24,25 +25,18 @@ server.on("listening", () => {
 server.connect(5555, "localhost");
 
 // TCP
+var tcp = new net.Socket();
+tcp.connect(6666, "127.0.0.1");
 
-var net = require('net');
-
-var client = new net.Socket();
-client.connect(1337, '127.0.0.1', function() {
-	console.log('Connected');
-	client.write('Hello, server! Love, Client.');
+tcp.on("data", function (data) {
+  console.log(data.toString());
 });
 
-client.on('data', function(data) {
-	console.log('Received: ' + data);
-	client.destroy(); 
-});
-
-client.on('close', function() {
-	console.log('Connection closed');
+tcp.on("error", function (err) {
+  console.log(`Error: ${err}`);
 });
 
 app.use(express.json());
 app.use(router);
 
-export { app, server };
+export { app, server, tcp };

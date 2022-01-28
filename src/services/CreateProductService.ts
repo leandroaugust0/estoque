@@ -1,5 +1,5 @@
 import { getCustomRepository } from "typeorm";
-import { server } from "../app";
+import { server, tcp } from "../app";
 import { Product } from "../entities/Product";
 import { ProductsRepositories } from "../repositories/ProductsRepositories";
 
@@ -28,7 +28,12 @@ class CreateProductService {
     await productsRepositories.save(product);
 
     server.send(
-      `Adicionado produto, nome: ${product.name.toString()}, preço: ${product.price.toString()} reais`
+      `Adicionado produto ao estoque, nome: ${product.name.toString()}, preço: ${product.price.toString()} reais`
+    );
+
+    tcp.write(
+      `Adicionado produto ao estoque, nome: ${product.name.toString()}, preço: ${product.price.toString()} reais`,
+      () => {}
     );
 
     return product;
